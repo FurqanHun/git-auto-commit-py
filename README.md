@@ -16,7 +16,7 @@ GACS is a Python script that automatically commits and pushes changes to your Gi
 ## Prerequisites
 
 - Python 3.x
-- Git installed and configured
+- Git installed and configured (It assumes you already have a git repository initialized)
 - Internet connection (for remote pushing)
 
 The script will automatically check for and offer to install required Python packages:
