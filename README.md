@@ -1,6 +1,6 @@
 # GACS - Git Auto Commit Script
 
-GACS is a Python script that automatically commits and pushes changes to your Git repository. It watches for file changes in real-time and handles git operations automatically with customizable debounce timing. It also supports remote pushing and branch selection.
+GACS - Git Auto Commit Script is a Python script that automatically commits changes to your Git repository. It watches for file changes in real-time and handles git operations automatically with customizable debounce timing. It also supports remote pushing and branch selection.
 
 ## Features
 
