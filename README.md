@@ -27,10 +27,12 @@ The script will automatically check for and offer to install required Python pac
 1. Clone the repository:
 ```bash
 git clone https://github.com/FurqanHun/GACS-py.git
+```
+2. Change directory:
+```bash
 cd GACS-py
 ```
-
-2. Run the script:
+3. Run the script:
 ```bash
 python main.py
 ```
@@ -51,3 +53,5 @@ Feel free to contribute or suggest changes.
 
 ## License
 Licensed under the GPLv3 License. See [LICENSE](LICENSE) for more information.
+
+_Tested on Fedora 41 and Windows 10_
