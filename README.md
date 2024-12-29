@@ -20,7 +20,7 @@ GACS is a Python script that automatically commits and pushes changes to your Gi
 - Internet connection (for remote pushing)
 
 The script will automatically check for and offer to install required Python packages:
-- `watchdog`
+- `watchdog` for file watching (i created this script using v6.0.0 (current stable as of writing this) and the script just installs the latest version)
 
 ## Installation and Usage
 
@@ -37,13 +37,15 @@ python main.py
 
 ## Why create this script?
 
-I could use `inotify-tools`, but there's no windows equivalent and you've to rely on github actions or other CI/CD tools.
-I could create a simple bash script and create a task scheduler in Windows, but it doesn't account for real-time file watching.
-I could create a powershell script, but no one sane installs powershell on Linux.
-I wanted a script that can run on both Linux and Windows and can be used for personal projects.
-Python is preinstalled on most Linux distros and you probably have it installed on Windows too.
+1. I could use `inotify-tools`, but there's no windows equivalent and you've to rely on github actions or other CI/CD tools.
+2. I could also create a simple bash script and create a task scheduler in Windows, but it doesn't account for real-time file watching.
+3. I could also create a powershell script, but no one sane installs powershell on Linux.
+4. I wanted a script that can run on both Linux and Windows and can be used for personal projects.
+5. Python is preinstalled on most Linux distros and you probably have it installed on Windows too.
 
 If i find something for windows then i may update or create a shell script that handles both Linux and Windows.
+
+_Before someone mentions the `inotify-tools` port `inotify-win`, i already know about it and yet have too look into it._
 
 Feel free to contribute or suggest changes.
 
