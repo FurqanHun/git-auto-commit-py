@@ -26,7 +26,7 @@ The script will automatically check for and offer to install required Python pac
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/FurqanHun/GACS-py.git
+git clone https://github.com/FurqanHun/git-auto-commit-py.git
 ```
 2. Change directory:
 ```bash

@@ -150,7 +150,7 @@ class AutoCommitHandler(PatternMatchingEventHandler):
 
 if __name__ == "__main__":
     print("GACS - Git Auto Commit Script- 0xQan")
-    print("Upstream repo: https://github.com/FurqanHun/GACS-py\n")
+    print("Upstream repo: https://github.com/FurqanHun/git-auto-commit-py\n")
 
     while True:
         repo_path = input("Enter the path to the repository/dir: ").strip()
