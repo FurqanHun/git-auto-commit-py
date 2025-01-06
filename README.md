@@ -5,13 +5,14 @@ GACS - Git Auto Commit Script is a Python script that automatically commits chan
 ## Features
 
 - Real-time file watching
-- Customizable debounce timing
+- Customizable debounce timing (you can tweak it!)
 - Support for specific file patterns
 - Branch selection
 - Optional remote pushing
-- File ignoring (kind of, as it's harcoded for now)
-- Detailed commit messages (also kind of, as modern apps makes changes in temp file and then rename it to original file, so it will commit it as "renamed file" instead of "changed file")
+- File ignoring (kind of, as it's hardcoded for now)
+- Detailed commit messages (also kind of, as some file systems or apps makes changes in temp file and then rename it to original file, so it will commit it as "renamed file" instead of "changed file")
 - Time-stamped commits (UTC)
+- Session logs (Basic right now, logs the actions taken—off by default. Logs live in the script's folder)
 
 ## Prerequisites
 
