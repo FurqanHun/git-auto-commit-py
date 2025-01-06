@@ -30,12 +30,13 @@ from watchdog.events import PatternMatchingEventHandler
 
 check_and_install("watchdog")
 class AutoCommitHandler(PatternMatchingEventHandler):
-    def __init__(self, repo_path, files_to_watch, branch, remote, debounce_time):
+    def __init__(self, repo_path, files_to_watch, branch, remote, debounce_time, log_file):
         self.repo_path = os.path.abspath(repo_path)
         self.branch = branch
         self.last_event_time = {}  # track last event time for each file
         self.remote = remote
         self.debounce_time = float(debounce_time)
+        self.log_file = log_file
 
         # patterns to watch
         patterns = ["*"] if "*" in files_to_watch else [f"*{f.strip()}" for f in files_to_watch]
@@ -92,6 +93,10 @@ class AutoCommitHandler(PatternMatchingEventHandler):
         rel_path = os.path.relpath(path, self.repo_path)
         return rel_path.startswith('.git') or '.git' in rel_path.split(os.sep)
 
+    def log(self, message):
+            """Helper method to log messages"""
+            log_event(self.log_file, message)
+
     def handle_event(self, file_path, event_type):
         try:
             # Check debounce time first
@@ -99,13 +104,23 @@ class AutoCommitHandler(PatternMatchingEventHandler):
             last_time = self.last_event_time.get(file_path, 0)
             elapsed_time = current_time - last_time
 
-            # Debug print to see what's happening
-            print(f"\nDebounce Check for {event_type}:")
-            print(f"Time since last event: {elapsed_time:.2f} seconds")
-            print(f"Required debounce time: {self.debounce_time} seconds")
+            # Debug print to see what's happening and logging it
+            debug_message = f"\nDebounce Check for {event_type}:"
+            print(debug_message)
+            self.log(debug_message)
+
+            time_message = f"Time since last event: {elapsed_time:.2f} seconds"
+            print(time_message)
+            self.log(time_message)
+
+            required_time_message = f"Required debounce time: {self.debounce_time} seconds"
+            print(required_time_message)
+            self.log(required_time_message)
 
             if elapsed_time < self.debounce_time:
-                print(f"Skipping {event_type} - Not enough time elapsed ({elapsed_time:.2f} < {self.debounce_time} seconds)")
+                skip_message = f"Skipping {event_type} - Not enough time elapsed ({elapsed_time:.2f} < {self.debounce_time} seconds)"
+                print(skip_message)
+                self.log(skip_message)
                 return
 
             # Update last event time
@@ -134,19 +149,73 @@ class AutoCommitHandler(PatternMatchingEventHandler):
             commit_message = f"Auto-commit by {os.getlogin()}: {rel_path} was {event_type}\nTimestamp: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}"
             subprocess.run(['git', 'commit', '-m', commit_message], check=True)
             print(f"Changes committed: {commit_message}")
+            self.log(f"Committing changes: {commit_message}")
 
             # push push push
             if self.remote:
                 subprocess.run(['git', 'push', 'origin', self.branch], check=True)
                 print(f"Changes pushed to {self.branch}")
+                self.log(f"Pushing changes to {self.branch}")
             else:
                 print("Remote push disabled. Changes not pushed.")
             print("\nWatching for file changes. Press Ctrl+C to stop.")
 
         except subprocess.CalledProcessError as e:
-            print(f"Git operation failed: {e}")
+            git_error = f"Git operation failed: {e}"
+            print(git_error)
+            self.log(git_error)
         except Exception as e:
-            print(f"Error handling {event_type} event: {e}")
+            error_message = f"Error handling {event_type} event: {e}"
+            print(error_message)
+            self.log(error_message)
+
+def setup_logging():
+    """Setup logging for the session"""
+    try:
+        # erm question
+        logging_choice = input("Would you like to create logs for this session? (y/n) Default is NO: ").strip().lower()
+
+        if logging_choice != 'y':
+            return None
+
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # dir at script path
+        log_dir = os.path.join(script_dir, 'logs', 'session_logs')
+        os.makedirs(log_dir, exist_ok=True)
+
+        # log file with timestamp >>>
+        timestamp = time.strftime('%Y%m%d_%H%M%S', time.gmtime())
+        log_file = os.path.join(log_dir, f'gacs_session_{timestamp}.log')
+
+        # header goes brrr
+        log_file_handle = open(log_file, 'w')
+        log_file_handle.write("GACS Session Log\n")
+        log_file_handle.write("================\n")
+        log_file_handle.write(f"Session started at: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}\n")
+        log_file_handle.write(f"User: {os.getlogin()}\n")
+        log_file_handle.write(f"Script Location: {script_dir}\n")
+        log_file_handle.write(f"Repo Location: {repo_path}\n")
+        log_file_handle.write("================\n\n")
+        log_file_handle.flush()
+
+        print(f"\nLogging enabled. Log file: {log_file}")
+        return log_file_handle
+
+    except Exception as e:
+        print(f"Error setting up logging: {e}")
+        print("Continuing without logging...")
+        return None
+
+def log_event(log_file, message):
+    """Log a message with timestamp"""
+    if log_file:
+        try:
+            timestamp = time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())
+            log_file.write(f"[{timestamp}] {message}\n")
+            log_file.flush()
+        except Exception as e:
+            print(f"Error writing to log: {e}")
 
 if __name__ == "__main__":
     print("GACS - Git Auto Commit Script- 0xQan")
@@ -180,8 +249,10 @@ if __name__ == "__main__":
             except ValueError:
                 print("Please enter a valid number")
 
+    log_file = setup_logging()
+
     # build/start the observer
-    event_handler = AutoCommitHandler(repo_path, files, branch, remote, debounce_time)
+    event_handler = AutoCommitHandler(repo_path, files, branch, remote, debounce_time, log_file)
     observer = Observer()
     observer.schedule(event_handler, repo_path, recursive=True)
     observer.start()
@@ -192,5 +263,8 @@ if __name__ == "__main__":
             time.sleep(1)
     except KeyboardInterrupt:
         print("\nStopping file watch...")
+        if log_file:
+            log_file.write(f"\nSession ended at: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}\n")
+            log_file.close()
         observer.stop()
     observer.join()
